@@ -2,6 +2,20 @@ import csv
 import os
 from sklearn import svm
 
+def readData(fileName):
+    result = {}
+    with open(fileName,'rb') as f:
+        rows = csv.reader(f)
+        for row in rows:
+            if result.has_key('attr_list'):
+                for i in range(len(result['attr_list'])):
+                    key = result['attr_list'][i]
+                    if not result.has_key(key):
+                        result[key] = []
+                    result[key].append(row[i])
+            else:
+                result['attr_list'] = row
+    return result
 
 def writeData(fileName, data):
     csvFile = open(fileName, 'w')
@@ -42,10 +56,10 @@ def dataPredeal(data):
     convertData(data["SibSp"])
     convertData(data["Parch"])
     convertData(data["Embarked"])
-  
-def getX(data): 
+
+def getX(data):
     x = []
-    ignores = {"PassengerId":1, "Survived":1, "Name":1,"Ticket":1, "Cabin":1, "Fare":1, "Embarked":1}    
+    ignores = {"PassengerId":1, "Survived":1, "Name":1,"Ticket":1, "Cabin":1, "Fare":1, "Embarked":1}
     for i in range(len(data["PassengerId"])):
         x.append([])
         for j in range(len(data["attr_list"])):
@@ -64,5 +78,18 @@ def calResult(x,label, input_x):
     svmcal = svm.SVC(kernel='linear').fit(x, label)
     return svmcal.predict(input_x)
 
+def run():
+    dataRoot = '../../kaggledata/titanic/'
+    data = readData(dataRoot + 'train.csv')
+    test_data = readData(dataRoot + 'test.csv')
+    dataPredeal(data)
+    dataPredeal(test_data)
+    x = getX(data)
+    label = getLabel(data)
+    input_x = getX(test_data)
+    x_result = calResult(x, label,input_x)
+    res = [[test_data["PassengerId"][i], x_result[i]] for i in range(len(x_result))]
+    res.insert(0, ["PassengerId", "Survived"])
+    writeData(dataRoot + 'result.csv', res)
 
-
+run()
