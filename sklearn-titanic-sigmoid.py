@@ -75,7 +75,7 @@ def getLabel(data):
     return label
 
 def calResult(x,label, input_x):
-    svmcal = svm.SVC(kernel='linear').fit(x, label)
+    svmcal = svm.SVC(kernel='sigmoid').fit(x, label)
     return svmcal.predict(input_x)
 
 def run():
@@ -90,6 +90,6 @@ def run():
     x_result = calResult(x, label,input_x)
     res = [[test_data["PassengerId"][i], x_result[i]] for i in range(len(x_result))]
     res.insert(0, ["PassengerId", "Survived"])
-    writeData(dataRoot + 'result1.csv', res)
+    writeData(dataRoot + 'result2.csv', res)
 
 run()
